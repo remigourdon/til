@@ -40,14 +40,18 @@ def extract_file_metadata(repo_path: pathlib.Path) -> Iterator[FileMeta]:
 
 
 def copy_file_with_front_matter(meta: FileMeta, content_dir: pathlib.Path):
+    source_content = meta.path.read_text()
+    title_line = source_content.splitlines()[0]
+    title = title_line[2:] if title_line.startswith("# ") else ""
     front_matter = "+++\n"
+    front_matter += f"title = '{title}'\n"
     front_matter += f"categories = ['{meta.path.parent}']\n"
     front_matter += f"date = {meta.creation_time}\n"
     if meta.modification_time:
         front_matter += f"lastmod = {meta.creation_time}\n"
     front_matter += "+++\n"
     destination_file = content_dir / meta.path.name
-    destination_file.write_text(front_matter + meta.path.read_text())
+    destination_file.write_text(front_matter + source_content)
 
 
 if __name__ == "__main__":
