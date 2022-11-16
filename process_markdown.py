@@ -3,6 +3,7 @@ import pathlib
 import glob
 from dataclasses import dataclass
 from datetime import datetime
+from sys import argv
 from typing import Iterator, Optional
 
 import git
@@ -38,6 +39,18 @@ def extract_file_metadata(repo_path: pathlib.Path) -> Iterator[FileMeta]:
         yield file_meta
 
 
+def copy_file_with_front_matter(meta: FileMeta, content_dir: pathlib.Path):
+    front_matter = "+++\n"
+    front_matter += f"categories = ['{meta.path.parent}']\n"
+    front_matter += f"date = {meta.creation_time}\n"
+    if meta.modification_time:
+        front_matter += f"lastmod = {meta.creation_time}\n"
+    front_matter += "+++\n"
+    destination_file = content_dir / meta.path.name
+    destination_file.write_text(front_matter + meta.path.read_text())
+
+
 if __name__ == "__main__":
-    for fm in extract_file_metadata(repo_root):
-        print(fm)
+    content_dir = pathlib.Path(argv[1])
+    for file_meta in extract_file_metadata(repo_root):
+        copy_file_with_front_matter(file_meta, content_dir)
