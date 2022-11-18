@@ -45,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: hugo-static-site
-          path: .build/public/
+          path: ${{ env.REPO_DIR }}/.build/public/
   publish:
     runs-on: ubuntu-22.04
     steps:
