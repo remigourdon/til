@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+env:
+  REPO_DIR: repo
+
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -12,6 +15,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
         with:
+          path: $REPO_DIR
           ref: main
           fetch-depth: 0
       - name: Set up Python
@@ -22,16 +26,18 @@ jobs:
         name: Configure pip caching
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip --disable-pip-version-check install --requirement requirements.txt
+          pip --disable-pip-version-check install --requirement $REPO_DIR/requirements.txt
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v2
         with:
           hugo-version: 0.106.0
       - name: Build static site
-        run: ./hugo_build.sh
+        run: |-
+          cd $REPO_DIR
+          ./hugo_build.sh
