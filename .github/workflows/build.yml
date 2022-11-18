@@ -15,7 +15,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
         with:
-          path: $REPO_DIR
+          path: ${{ env.REPO_DIR }}
           ref: main
           fetch-depth: 0
       - name: Set up Python
