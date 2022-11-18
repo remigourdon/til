@@ -41,3 +41,23 @@ jobs:
         run: |-
           cd $REPO_DIR
           ./hugo_build.sh
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: hugo-static-site
+          path: .build/public/
+  publish:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: hugo-static-site
+          path: site
+      - name: Publish
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir site --prod
+        env:
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
