@@ -48,6 +48,7 @@ jobs:
           name: hugo-static-site
           path: ${{ env.REPO_DIR }}/.build/public/
   publish:
+    needs: build
     runs-on: ubuntu-22.04
     steps:
       - name: Download build artifact
