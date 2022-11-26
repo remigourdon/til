@@ -42,7 +42,7 @@ def copy_file_with_front_matter(meta: FileMeta, content_dir: pathlib.Path):
     title = title_line[2:] if title_line.startswith("# ") else ""
     front_matter = "+++\n"
     front_matter += f"title = '{title}'\n"
-    front_matter += f"categories = ['{meta.path.parent}']\n"
+    front_matter += f"categories = ['{meta.path.parent.name}']\n"
     front_matter += f"date = {meta.creation_time}\n"
     if meta.modification_time:
         front_matter += f"lastmod = {meta.creation_time}\n"
