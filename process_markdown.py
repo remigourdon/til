@@ -73,5 +73,6 @@ def parse_args() -> argparse.Namespace:
 
 if __name__ == "__main__":
     args = parse_args()
+    args.dest_dir.mkdir(exist_ok=True)
     for file_meta in extract_file_metadata(args.repo_root):
         copy_file_with_front_matter(file_meta, args.dest_dir)
