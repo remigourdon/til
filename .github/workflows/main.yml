@@ -1,0 +1,19 @@
+name: Dispatch to Website repo to trigger workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Dispatch Website repo
+        run: |
+          curl \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.DISPATCH_WEBSITE_TOKEN }}" \
+          https://api.github.com/repos/remigourdon/website/dispatches \
+          -d '{"event_type":"til-update","client_payload":{}}'
