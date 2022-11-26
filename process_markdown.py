@@ -73,5 +73,10 @@ def parse_args() -> argparse.Namespace:
 if __name__ == "__main__":
     args = parse_args()
     args.dest_dir.mkdir(exist_ok=True)
+    total = 0
     for file_meta in extract_file_metadata(args.repo_root):
+        if file_meta.modification_time is None:
+            print(f"New file added: {file_meta.path.relative_to(args.repo_root)}")
         copy_file_with_front_matter(file_meta, args.dest_dir)
+        total += 1
+    print(f"Processed a total of {total} Markdown files")
