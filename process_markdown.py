@@ -3,12 +3,10 @@ import pathlib
 import glob
 from dataclasses import dataclass
 from datetime import datetime
-from sys import argv
 from typing import Iterator, Optional
+import argparse
 
 import git
-
-repo_root = pathlib.Path(__file__).parent.resolve()
 
 
 @dataclass(frozen=True)
@@ -54,7 +52,27 @@ def copy_file_with_front_matter(meta: FileMeta, content_dir: pathlib.Path):
     destination_file.write_text(front_matter + source_content)
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Process TIL Markdown files for Hugo rendering"
+    )
+    parser.add_argument(
+        "--repo-root",
+        type=pathlib.Path,
+        required=True,
+        help="Repository containing Markdown files to process",
+    )
+    parser.add_argument(
+        "--dest-dir",
+        type=pathlib.Path,
+        required=True,
+        help="Directory to place processed Markdown files into",
+    )
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    content_dir = pathlib.Path(argv[1])
-    for file_meta in extract_file_metadata(repo_root):
-        copy_file_with_front_matter(file_meta, content_dir)
+    args = parse_args()
+    args.dest_dir.mkdir(exist_ok=True)
+    for file_meta in extract_file_metadata(args.repo_root):
+        copy_file_with_front_matter(file_meta, args.dest_dir)
