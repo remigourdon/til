@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import pathlib
-import glob
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Iterator, Optional
@@ -18,9 +17,9 @@ class FileMeta:
 
 def extract_file_metadata(repo_path: pathlib.Path) -> Iterator[FileMeta]:
     repo = git.Repo(path=repo_path)
-    markdown_files = [pathlib.Path(f) for f in glob.glob("*/*.md")]
+    markdown_files = [f for f in repo_path.glob("*/*.md")]
     for md in markdown_files:
-        commits = list(repo.iter_commits(paths=md))
+        commits = list(repo.iter_commits(paths=md.relative_to(repo_path)))
         if len(commits) == 0:
             continue
         elif len(commits) == 1:
