@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Iterator, Optional
 import argparse
+import shutil
 
 import git
 
@@ -54,6 +55,11 @@ def copy_file_with_front_matter(meta: FileMeta, content_dir: pathlib.Path):
     destination_file.write_text(front_matter + source_content)
 
 
+def initialize_content_dir(content_dir: pathlib.Path):
+    shutil.rmtree(content_dir, ignore_errors=True)
+    content_dir.mkdir(exist_ok=True)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Process TIL Markdown files for Hugo rendering"
@@ -75,7 +81,7 @@ def parse_args() -> argparse.Namespace:
 
 if __name__ == "__main__":
     args = parse_args()
-    args.dest_dir.mkdir(exist_ok=True)
+    initialize_content_dir(args.dest_dir)
     total = 0
     for file_meta in extract_file_metadata(args.repo_root):
         if file_meta.modification_time is None:
