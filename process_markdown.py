@@ -44,14 +44,16 @@ def copy_file_with_front_matter(meta: FileMeta, content_dir: pathlib.Path):
     category = meta.path.parent.name
     front_matter = "+++\n"
     front_matter += f"title = '{title}'\n"
-    front_matter += f"categories = ['{category}']\n"
     front_matter += f"date = {meta.creation_time}\n"
     if meta.modification_time:
         front_matter += f"lastmod = {meta.creation_time}\n"
     front_matter += "+++\n"
-    destination_dir = content_dir / category
-    destination_dir.mkdir(exist_ok=True)
-    destination_file = destination_dir / meta.path.name
+    category_dir = content_dir / category
+    category_dir.mkdir(exist_ok=True)
+    category_index_file = category_dir / "_index.md"
+    if not category_index_file.is_file():
+        category_index_file.write_text(f"+++\ntitle = '{category}'\n+++")
+    destination_file = category_dir / meta.path.name
     destination_file.write_text(front_matter + source_content)
 
 
