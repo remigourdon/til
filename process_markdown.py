@@ -40,14 +40,17 @@ def copy_file_with_front_matter(meta: FileMeta, content_dir: pathlib.Path):
     source_content = meta.path.read_text()
     title_line = source_content.splitlines()[0]
     title = title_line[2:] if title_line.startswith("# ") else ""
+    category = meta.path.parent.name
     front_matter = "+++\n"
     front_matter += f"title = '{title}'\n"
-    front_matter += f"categories = ['{meta.path.parent.name}']\n"
+    front_matter += f"categories = ['{category}']\n"
     front_matter += f"date = {meta.creation_time}\n"
     if meta.modification_time:
         front_matter += f"lastmod = {meta.creation_time}\n"
     front_matter += "+++\n"
-    destination_file = content_dir / meta.path.name
+    destination_dir = content_dir / category
+    destination_dir.mkdir(exist_ok=True)
+    destination_file = destination_dir / meta.path.name
     destination_file.write_text(front_matter + source_content)
 
 
