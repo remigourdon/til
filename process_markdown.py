@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Iterator, Optional
 import argparse
+import shutil
 
 import git
 
@@ -40,15 +41,25 @@ def copy_file_with_front_matter(meta: FileMeta, content_dir: pathlib.Path):
     source_content = meta.path.read_text()
     title_line = source_content.splitlines()[0]
     title = title_line[2:] if title_line.startswith("# ") else ""
+    category = meta.path.parent.name
     front_matter = "+++\n"
     front_matter += f"title = '{title}'\n"
-    front_matter += f"categories = ['{meta.path.parent.name}']\n"
     front_matter += f"date = {meta.creation_time}\n"
     if meta.modification_time:
         front_matter += f"lastmod = {meta.creation_time}\n"
     front_matter += "+++\n"
-    destination_file = content_dir / meta.path.name
+    category_dir = content_dir / category
+    category_dir.mkdir(exist_ok=True)
+    category_index_file = category_dir / "_index.md"
+    if not category_index_file.is_file():
+        category_index_file.write_text(f"+++\ntitle = '{category}'\n+++")
+    destination_file = category_dir / meta.path.name
     destination_file.write_text(front_matter + source_content)
+
+
+def initialize_content_dir(content_dir: pathlib.Path):
+    shutil.rmtree(content_dir, ignore_errors=True)
+    content_dir.mkdir(exist_ok=True)
 
 
 def parse_args() -> argparse.Namespace:
@@ -72,7 +83,7 @@ def parse_args() -> argparse.Namespace:
 
 if __name__ == "__main__":
     args = parse_args()
-    args.dest_dir.mkdir(exist_ok=True)
+    initialize_content_dir(args.dest_dir)
     total = 0
     for file_meta in extract_file_metadata(args.repo_root):
         if file_meta.modification_time is None:
